@@ -5,13 +5,14 @@ library(tidytext)
 library(topicmodels)
 library(tm)
 library(ggplot2)
-# setwd("~/Desktop/LDA_topicmodel")
 
 #Dataset:
 # https://www.kaggle.com/datasets/jrobischon/wikipedia-movie-plots
 
 #read in the data from a CSV file
 wiki_movies_plots <- read.csv("wiki_movie_plots_deduped.csv")
+wiki_movies_sub_plots <- sample_n(wiki_movies_plots,15000)
+write.csv(wiki_movies_sub_plots,"wiki_movie_plots_deduped_sub.csv")
 male_names <- tolower(read.delim("male.txt",header = FALSE)$V1)
 female_names <- tolower(read.delim("female.txt",header = FALSE)$V1)
 wiki_movies_plots <- wiki_movies_plots[1:4000,]
