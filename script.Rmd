@@ -1,0 +1,113 @@
+---
+title: "Movie Plot LDA Topic Modeling Exploration"
+author: "Leif Berg"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(rsample)
+library(tidymodels)
+library(tidytext)
+library(topicmodels)
+library(tm)
+library(ggplot2)
+```
+# About
+This Rmarkdown file demonstrates the use of LDA Topic Modelling in R with a set of movie plot descriptions. 
+
+Data downloaded from: https://www.kaggle.com/datasets/jrobischon/wikipedia-movie-plots
+
+## Setup
+
+### Read in Data
+Read in the data from a CSV file
+```{r}
+wiki_movies_plots <- read.csv("wiki_movie_plots_deduped.csv")
+# Limit  number of plot descriptions (to ensure model finishes)
+wiki_movies_plots <- wiki_movies_plots[1:2000,]
+# wiki_movies_plots <- wiki_movies_plots %>% filter(Genre == "western")
+```
+
+View structure of data
+```{r}
+str(wiki_movies_plots)
+```
+
+View first few rows of data
+```{r}
+head(wiki_movies_plots)
+```
+
+Read in lists of common first names for males and females (ensure they are lowercase)
+```{r}
+male_names <- tolower(read.delim("male.txt",header = FALSE)$V1)
+# Select first 3k female names (full list is too much for regex function)
+female_names <- tolower(read.delim("female.txt",header = FALSE)$V1)[1:3000]
+```
+
+### Clean the data - remove common words/names
+```{r}
+#Ensure plot descriptions are in lowercase
+wiki_movies_plots$Plot <- tolower(wiki_movies_plots$Plot)
+#Collect list of common words from tidytext package
+stop_words <- tidytext::stop_words
+#remove common words and names from plot descriptions
+wiki_movies_plots$Plot <- removeWords(wiki_movies_plots$Plot,c(stop_words$word))
+wiki_movies_plots$Plot <- removeWords(wiki_movies_plots$Plot,c(male_names))
+wiki_movies_plots$Plot <- removeWords(wiki_movies_plots$Plot,c(female_names))
+```
+
+### LDA Model
+Create a Corpus object from the vector of movie plots
+```{r}
+corpus <- Corpus(VectorSource(wiki_movies_plots$Plot))
+```
+Create a Document Term Matrix
+```{r}
+tdm <- DocumentTermMatrix(corpus)
+```
+Create an LDA model with 12 topics and seed (to ensure consistent randomness)
+```{r}
+ap_lda <- topicmodels::LDA(tdm, k = 12, control = list(seed = 1234))
+```
+View the LDA modal
+```{r}
+ap_lda
+```
+
+Create Beta Table 
+```{r}
+ap_topics <- tidy(ap_lda, matrix = "beta")
+ap_topics
+```
+
+### Visualize Results
+```{r}
+#Prepare the data for visualization
+ap_top_terms <- ap_topics %>%
+  group_by(topic) %>%
+  slice_max(beta, n = 10) %>% 
+  ungroup() %>%
+  arrange(topic, -beta)
+
+#Visualize the topics with ggplot
+ap_top_terms %>%
+  mutate(term = reorder_within(term, beta, topic)) %>%
+  ggplot(aes(beta, term, fill = factor(topic))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free") +
+  scale_y_reordered()
+```
+
+
+
+
+
+
+
+
+
+

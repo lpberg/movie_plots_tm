@@ -5,7 +5,7 @@ library(tidytext)
 library(topicmodels)
 library(tm)
 library(ggplot2)
-setwd("~/Desktop/LDA_topicmodel")
+# setwd("~/Desktop/LDA_topicmodel")
 
 #Dataset:
 # https://www.kaggle.com/datasets/jrobischon/wikipedia-movie-plots
