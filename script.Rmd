@@ -72,9 +72,6 @@ tdm <- DocumentTermMatrix(corpus)
 Create an LDA model with 12 topics and seed (to ensure consistent randomness)
 ```{r}
 ap_lda <- topicmodels::LDA(tdm, k = 12, control = list(seed = 1234))
-```
-View the LDA modal
-```{r}
 ap_lda
 ```
 

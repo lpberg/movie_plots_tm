@@ -438,9 +438,8 @@ wiki_movies_plots$Plot &lt;- removeWords(wiki_movies_plots$Plot,c(female_names))
 <pre class="r"><code>tdm &lt;- DocumentTermMatrix(corpus)</code></pre>
 <p>Create an LDA model with 12 topics and seed (to ensure consistent
 randomness)</p>
-<pre class="r"><code>ap_lda &lt;- topicmodels::LDA(tdm, k = 12, control = list(seed = 1234))</code></pre>
-<p>View the LDA modal</p>
-<pre class="r"><code>ap_lda</code></pre>
+<pre class="r"><code>ap_lda &lt;- topicmodels::LDA(tdm, k = 12, control = list(seed = 1234))
+ap_lda</code></pre>
 <pre><code>## A LDA_VEM topic model with 12 topics.</code></pre>
 <p>Create Beta Table</p>
 <pre class="r"><code>ap_topics &lt;- tidy(ap_lda, matrix = &quot;beta&quot;)
